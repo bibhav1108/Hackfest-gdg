@@ -67,6 +67,7 @@ import { CounterCardModal } from './components/counter/CounterCardModal';
 import { RupeeReceiptModal } from './components/receipt/RupeeReceiptModal';
 import { PriceLadderView } from './components/ladder/PriceLadderView';
 import { EquivalenceProofCard } from './components/equivalence/EquivalenceProofCard';
+import { PrecisionGradingCard } from './components/grading/PrecisionGradingCard';
 import { GoldenTestSetModal } from './components/bench/GoldenTestSetModal';
 import { HumanInTheLoopSelector } from './components/workflow/HumanInTheLoopSelector';
 import { MedicineQrModal } from './components/qr/MedicineQrModal';
@@ -128,6 +129,7 @@ export function App() {
   const [isRegulatoryOpen, setIsRegulatoryOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isFloatingDockOpen, setIsFloatingDockOpen] = useState(false);
 
   // Section references for smooth scrolling workflow
   const searchInputSectionRef = useRef<HTMLDivElement>(null);
@@ -479,6 +481,29 @@ export function App() {
 
           {/* Header Action Buttons */}
           <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Saved Prescriptions & Medicines Drawer Button */}
+            <button
+              onClick={() => setIsSavedModalOpen(true)}
+              className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-xl border border-teal-200 dark:border-slate-700 bg-white/90 dark:bg-slate-800/90 hover:bg-teal-50 dark:hover:bg-slate-700 text-teal-900 dark:text-teal-200 text-xs font-bold transition active:scale-95 shadow-2xs"
+              title="Open Saved Prescriptions & Medicines"
+            >
+              <Bookmark className="w-3.5 h-3.5 text-teal-600 dark:text-teal-400" />
+              <span className="hidden sm:inline">Saved</span>
+              <span className="bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 px-1.5 py-0.2 rounded-full text-[10px]">
+                {savedItems.length}
+              </span>
+            </button>
+
+            {/* AI Pharmacist Chat Button */}
+            <button
+              onClick={() => setIsChatOpen(true)}
+              className="hidden md:flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl border border-teal-300 dark:border-teal-700 bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white text-xs font-bold transition active:scale-95 shadow-2xs"
+              title="Consult AI Pharmacist"
+            >
+              <Bot className="w-3.5 h-3.5" />
+              <span>AI Pharmacist</span>
+            </button>
+
             {/* Add Medicine to PWA Button */}
             <button
               onClick={() => handleOpenAddMedicine()}
@@ -658,6 +683,18 @@ export function App() {
               isPartial={false}
             />
 
+            {/* PRECISION MEDICINE & SAVINGS SCORECARD */}
+            <PrecisionGradingCard
+              brandName={result.brand_details.brand_name}
+              genericName={result.cheapest_generic.generic_name}
+              saltComposition={result.cheapest_generic.salt_composition}
+              strength={result.brand_details.strength}
+              dosageForm={result.brand_details.dosage_form}
+              brandPrice={result.brand_details.price_inr}
+              genericPrice={result.cheapest_generic.price_inr}
+              pmbjpCode={result.cheapest_generic.pmbjp_code}
+            />
+
             {/* ACTION TOOLBAR: Standout Action Buttons (Counter Mode, Counter Card, Rupee Receipt, Price Ladder) */}
             <div className="flex items-center justify-between flex-wrap gap-2 pt-1">
               <span className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
@@ -808,7 +845,7 @@ export function App() {
               </div>
 
               {/* RIGHT CARD: Jan Aushadhi Generic Equivalent */}
-              <div className="relative rounded-3xl border-2 border-emerald-500 dark:border-emerald-500 bg-gradient-to-b from-emerald-50/50 via-white to-white dark:from-emerald-950/30 dark:via-slate-900 dark:to-slate-900 p-6 shadow-md flex flex-col justify-between space-y-4 hover:shadow-lg transition">
+              <div className="relative rounded-3xl border-2 border-emerald-500/90 dark:border-emerald-500 bg-gradient-to-b from-emerald-50/70 via-white to-white dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 p-6 shadow-md grade-glow-a-plus flex flex-col justify-between space-y-4 hover:shadow-xl transition-all duration-300">
                 <div className="space-y-3">
                   {/* Top Badge Row */}
                   <div className="flex items-center justify-between pb-2 border-b border-emerald-100 dark:border-emerald-900/60">
@@ -816,9 +853,14 @@ export function App() {
                       <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       {t.genericEquivalent}
                     </span>
-                    <span className="rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 text-[11px] font-bold">
-                      {result.cheapest_generic.pmbjp_code || 'PMBJP Code: #1048'}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="rounded-md bg-emerald-600 text-white px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider shadow-2xs">
+                        Grade A+
+                      </span>
+                      <span className="rounded-md bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-200 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 text-[10px] font-bold">
+                        {result.cheapest_generic.pmbjp_code || 'PMBJP Code: #1048'}
+                      </span>
+                    </div>
                   </div>
 
                   <div>
@@ -862,7 +904,7 @@ export function App() {
                     </span>
                   </div>
 
-                  {/* Jan Aushadhi Price */}
+                  {/* Jan Aushadhi Price with Strikethrough Comparison */}
                   <div className="flex items-baseline justify-between pt-1">
                     <div>
                       <span className="text-xs font-bold text-emerald-900 dark:text-emerald-300 block">
@@ -870,9 +912,14 @@ export function App() {
                       </span>
                       <span className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium">Fixed subsidized public rate</span>
                     </div>
-                    <span className="text-3xl sm:text-4xl font-extrabold font-mono-numbers text-emerald-700 dark:text-emerald-400">
-                      ₹{result.cheapest_generic.price_inr.toFixed(2)}
-                    </span>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-sm line-through text-slate-400 dark:text-slate-500 font-semibold font-mono-numbers">
+                        ₹{result.brand_details.price_inr.toFixed(2)}
+                      </span>
+                      <span className="text-3xl sm:text-4xl font-black font-mono-numbers text-emerald-600 dark:text-emerald-400">
+                        ₹{result.cheapest_generic.price_inr.toFixed(2)}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1287,6 +1334,87 @@ export function App() {
           executeSearch(newMed.brandName);
         }}
       />
+
+      {/* FLOATING MULTIMODAL AI & QUICK ACTION HUB */}
+      <div className="fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
+        {isFloatingDockOpen && (
+          <div className="flex flex-col gap-1.5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border border-teal-200 dark:border-slate-800 p-2 rounded-2xl shadow-xl animate-in slide-in-from-bottom-3 duration-200 min-w-[200px]">
+            <div className="px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-teal-800 dark:text-teal-400 border-b border-slate-100 dark:border-slate-800">
+              Quick Multimodal Tools
+            </div>
+
+            {/* Ask AI Pharmacist */}
+            <button
+              onClick={() => {
+                setIsChatOpen(true);
+                setIsFloatingDockOpen(false);
+              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-teal-50 dark:hover:bg-slate-800 hover:text-teal-700 dark:hover:text-teal-300 transition text-left"
+            >
+              <Bot className="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" />
+              <span>Ask AI Pharmacist</span>
+            </button>
+
+            {/* Live Voice Consultation */}
+            <button
+              onClick={() => {
+                setIsLiveVoiceOpen(true);
+                setIsFloatingDockOpen(false);
+              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-slate-800 hover:text-emerald-700 dark:hover:text-emerald-300 transition text-left"
+            >
+              <Radio className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              <span>Live Voice Consult</span>
+            </button>
+
+            {/* Prescription Camera Scanner */}
+            <button
+              onClick={() => {
+                setIsScannerOpen(true);
+                setIsFloatingDockOpen(false);
+              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-sky-50 dark:hover:bg-slate-800 hover:text-sky-700 dark:hover:text-sky-300 transition text-left"
+            >
+              <Camera className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0" />
+              <span>Scan Prescription / Strip</span>
+            </button>
+
+            {/* Bioscience Explorer */}
+            <button
+              onClick={() => {
+                setIsBioscienceOpen(true);
+                setIsFloatingDockOpen(false);
+              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-slate-800 hover:text-purple-700 dark:hover:text-purple-300 transition text-left"
+            >
+              <Atom className="w-4 h-4 text-purple-600 dark:text-purple-400 shrink-0" />
+              <span>Bioscience Explorer</span>
+            </button>
+
+            {/* Regulatory Grounding */}
+            <button
+              onClick={() => {
+                setIsRegulatoryOpen(true);
+                setIsFloatingDockOpen(false);
+              }}
+              className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-indigo-50 dark:hover:bg-slate-800 hover:text-indigo-700 dark:hover:text-indigo-300 transition text-left"
+            >
+              <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
+              <span>Regulatory Check</span>
+            </button>
+          </div>
+        )}
+
+        {/* Master Floating Trigger Pill */}
+        <button
+          onClick={() => setIsFloatingDockOpen(!isFloatingDockOpen)}
+          className="flex items-center gap-2 px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-teal-600 via-emerald-600 to-teal-700 hover:opacity-95 text-white font-extrabold text-xs shadow-lg shadow-teal-700/25 transition-all transform active:scale-95"
+          title="Open AI & Quick Actions Hub"
+        >
+          <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
+          <span>AI & Quick Tools</span>
+        </button>
+      </div>
     </div>
   );
 }
