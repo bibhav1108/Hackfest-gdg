@@ -1,0 +1,6 @@
+{
+  "name": "Generic Rx",
+  "description": "Discover low-cost, high-quality generic alternatives & save up to 90% on your prescriptions with Jan Aushadhi (PMBJP).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
