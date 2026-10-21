@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated user profile for consumer / patient using Jan Aushadhi finder.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "displayName": { "type": "string", "maxLength": 128 },
+        "photoURL": { "type": "string", "maxLength": 512 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "SavedMedicine": {
+      "title": "SavedMedicine",
+      "description": "Patient saved prescription medicine and generic alternative for tracking savings.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "brandName": { "type": "string", "maxLength": 128 },
+        "saltComposition": { "type": "string", "maxLength": 256 },
+        "dosageForm": { "type": "string", "maxLength": 64 },
+        "strength": { "type": "string", "maxLength": 64 },
+        "brandPrice": { "type": "number" },
+        "genericName": { "type": "string", "maxLength": 128 },
+        "pmbjpCode": { "type": "string", "maxLength": 64 },
+        "genericPrice": { "type": "number" },
+        "savingsAmount": { "type": "number" },
+        "savingsPercentage": { "type": "number" },
+        "savedAt": { "type": "string" }
+      },
+      "required": ["userId", "brandName", "genericName", "brandPrice", "genericPrice"]
+    },
+    "Medication": {
+      "title": "Medication",
+      "description": "Pharmacy medication inventory record.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 128 },
+        "genericName": { "type": "string", "maxLength": 128 },
+        "category": { "type": "string", "maxLength": 64 },
+        "form": { "type": "string", "maxLength": 64 },
+        "dosage": { "type": "string", "maxLength": 64 },
+        "stock": { "type": "number" },
+        "minStock": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "expiryDate": { "type": "string", "maxLength": 32 },
+        "batchNumber": { "type": "string", "maxLength": 64 },
+        "colorTheme": { "type": "string", "maxLength": 32 },
+        "imageAlt": { "type": "string", "maxLength": 128 },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "stock", "unitPrice"]
+    },
+    "Prescription": {
+      "title": "Prescription",
+      "description": "Prescription and dispensing order.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "rxNumber": { "type": "string", "maxLength": 64 },
+        "patientName": { "type": "string", "maxLength": 128 },
+        "age": { "type": "number" },
+        "doctorName": { "type": "string", "maxLength": 128 },
+        "medicationName": { "type": "string", "maxLength": 128 },
+        "dosage": { "type": "string", "maxLength": 128 },
+        "frequency": { "type": "string", "maxLength": 64 },
+        "prescribedTime": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["dispensed", "ready", "pending", "review"] },
+        "amount": { "type": "number" },
+        "priority": { "type": "string", "enum": ["normal", "urgent"] },
+        "notes": { "type": "string", "maxLength": 512 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["patientName", "medicationName", "status", "amount"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "User profile document accessible only to the owner"
+    },
+    "/users/{userId}/savedMedicines/{medicineId}": {
+      "schema": "SavedMedicine",
+      "description": "User saved medicines and generic price comparison tracking"
+    },
+    "/medications/{medicationId}": {
+      "schema": "Medication",
+      "description": "Medication stock items readable by authenticated users and managed by pharmacists"
+    },
+    "/prescriptions/{prescriptionId}": {
+      "schema": "Prescription",
+      "description": "Prescriptions and dispensing queue"
+    }
+  }
+}

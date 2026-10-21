@@ -1,0 +1,42 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profiles: strictly isolated by UID
+    match /users/{userId} {
+      allow get: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+      allow list: if false;
+      allow write: if isSignedIn() && request.auth.uid == userId && isValidId(userId);
+
+      // Subcollection for saved medicines
+      match /savedMedicines/{medicineId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId && isValidId(medicineId);
+      }
+    }
+
+    // Medications inventory
+    match /medications/{medicationId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // Prescriptions
+    match /prescriptions/{prescriptionId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+  }
+}
